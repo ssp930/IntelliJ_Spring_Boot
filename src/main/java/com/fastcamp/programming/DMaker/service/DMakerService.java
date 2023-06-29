@@ -75,8 +75,8 @@ public class DMakerService {
 
     }
 
-    public List<DeveloperDto> getAllDevelopers() {
-        return developerRepository.findAll()
+    public List<DeveloperDto> getAllEmployedDevelopers() {
+        return developerRepository.findDevelopersByStatusCodeEquals(StatusCode.EMPLOYED)
                 .stream().map(DeveloperDto::fromEntity)
                 .collect(Collectors.toList());
     }
@@ -117,6 +117,10 @@ public class DMakerService {
         Developer developer = developerRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new DMakerException(NO_DEVELOPER));
         developer.setStatusCode(StatusCode.RETIRED);
+        // developerRepository.save(developer);
+        // Transactional 어노테이션을 붙여서 하나라도 수정이 들어가는 부분이 있을 때 atomic 을 유지하는게 좋다.
+        // 코드는 계속해서 추가되기 때문에 안정성을 위해서 Transactional 을 사용하는 게 좋다.
+        // if(developer != null) throw new DMakerException(NO_DEVELOPER);
 
         // 2. save into RetiredDeveloper
         RetiredDeveloper retiredDeveloper = RetiredDeveloper.builder()

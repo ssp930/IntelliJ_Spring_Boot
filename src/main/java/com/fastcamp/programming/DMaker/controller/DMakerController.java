@@ -1,17 +1,14 @@
 package com.fastcamp.programming.DMaker.controller;
 
-import com.fastcamp.programming.DMaker.dto.CreateDeveloper;
-import com.fastcamp.programming.DMaker.dto.DeveloperDetailDto;
-import com.fastcamp.programming.DMaker.dto.DeveloperDto;
-import com.fastcamp.programming.DMaker.dto.EditDeveloper;
+import com.fastcamp.programming.DMaker.dto.*;
+import com.fastcamp.programming.DMaker.exception.DMakerException;
 import com.fastcamp.programming.DMaker.service.DMakerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -24,7 +21,8 @@ public class DMakerController {
     public List<DeveloperDto> getAllDevelopers() {
         log.info("GET / developers HTTP/1.1");
 
-        return dMakerService.getAllDevelopers();
+        return dMakerService.getAllEmployedDevelopers();
+
     }
 
     @GetMapping("/developer/{memberId}")
@@ -62,6 +60,20 @@ public class DMakerController {
             @PathVariable String memberId
     ) {
         return dMakerService.deleteDeveloper(memberId);
+    }
+
+    @ExceptionHandler(DMakerException.class)
+    public DMakerErrorResponse handleException(
+            DMakerException e,
+            HttpServletRequest request
+    ){
+        log.error("errorCode : {}, url: {}, message: {}",
+                e.getDMakerErrorCode(), request.getRequestURI(), e.getDetailMessage());
+
+        return DMakerErrorResponse.builder()
+                .errorCode(e.getDMakerErrorCode())
+                .errorMessage(e.getDetailMessage())
+                .build();
     }
 
 
